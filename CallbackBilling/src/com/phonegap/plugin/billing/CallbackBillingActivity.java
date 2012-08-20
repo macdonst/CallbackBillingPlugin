@@ -16,8 +16,8 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 
-import com.phonegap.DroidGap;
-import com.phonegap.api.PluginResult;
+import org.apache.cordova.DroidGap;
+import org.apache.cordova.api.PluginResult;
 import com.phonegap.plugin.billing.plugin.BillingService;
 import com.phonegap.plugin.billing.plugin.CallbackBillingPlugin;
 import com.phonegap.plugin.billing.plugin.Consts;
@@ -30,13 +30,13 @@ import com.phonegap.plugin.billing.plugin.Consts.PurchaseState;
 import com.phonegap.plugin.billing.plugin.Consts.ResponseCode;
 
 public class CallbackBillingActivity extends DroidGap {
-	public static final String TAG = "CallbackBillingActivity";
-	
-	public static CallbackBillingActivity eInstance = null;
-	
-	// Variable for Billing
+    public static final String TAG = "CallbackBillingActivity";
+
+    public static CallbackBillingActivity eInstance = null;
+
+    // Variable for Billing
     private CallbackBillingPlugin _pluginReference = null;
-    
+
     /**
      * The SharedPreferences key for recording whether we initialized the
      * database.  If false, then we perform a RestoreTransactions request
@@ -46,7 +46,7 @@ public class CallbackBillingActivity extends DroidGap {
 
     // Flag indicate that app support in-app-billing or not
     private boolean isBillingSupported = false;
-    
+
     private CallbackPurchaseObserver mCallbackPurchaseObserver;
     private Handler mHandler;
 
@@ -90,11 +90,11 @@ public class CallbackBillingActivity extends DroidGap {
                 Log.i(TAG, "supported: " + supported);
             }
             if (supported) {
-            	// save a flag here to indicate that this app support in app billing
-            	isBillingSupported = true;
-            	//restoreDatabase();
+                // save a flag here to indicate that this app support in app billing
+                isBillingSupported = true;
+                //restoreDatabase();
             } else {
-            	Log.d(TAG, "In App Billing not supported");
+                Log.d(TAG, "In App Billing not supported");
                 //showDialog(DIALOG_BILLING_NOT_SUPPORTED_ID);
             }
         }
@@ -102,12 +102,12 @@ public class CallbackBillingActivity extends DroidGap {
         @Override
         public void onPurchaseStateChange(PurchaseState purchaseState, String itemId,
                 int quantity, long purchaseTime, String developerPayload) {
-        	fireJavaScriptEvent("onPurchaseStateChange", "");
+            fireJavaScriptEvent("onPurchaseStateChange", "");
 
-        	try {
-        		JSONObject oResult = new JSONObject();
+            try {
+                JSONObject oResult = new JSONObject();
                 oResult.put("event", "onPurchaseStateChange");
-                
+
                 if (Consts.DEBUG) {
                     Log.i(TAG, "onPurchaseStateChange() itemId: " + itemId + " " + purchaseState);
                 }
@@ -128,7 +128,7 @@ public class CallbackBillingActivity extends DroidGap {
                 }
                 //mCatalogAdapter.setOwnedItems(mOwnedItems);
                 mOwnedItemsCursor.requery();
-                
+
                 // TODO: Send back the event to javascript
                 if (_pluginReference != null) {
                     PluginResult result = new PluginResult(PluginResult.Status.OK, oResult.toString());
@@ -137,59 +137,59 @@ public class CallbackBillingActivity extends DroidGap {
                     _pluginReference.resetCallbackId();
                     _pluginReference = null;
                 }
-        	} catch (Exception e) {
-				// TODO: handle exception
-			}
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
 
         @Override
         public void onRequestPurchaseResponse(RequestPurchase request,
                 ResponseCode responseCode) {
-        	fireJavaScriptEvent("onRequestPurchaseResponse", "");
+            fireJavaScriptEvent("onRequestPurchaseResponse", "");
 
-        	try {
-	            JSONObject oResult = new JSONObject();
+            try {
+                JSONObject oResult = new JSONObject();
                 oResult.put("event", "onRequestPurchaseResponse");
-                
-	            if (Consts.DEBUG) {
-	                Log.d(TAG, request.mProductId + ": " + responseCode);
-	            }
-	            if (responseCode == ResponseCode.RESULT_OK) {
-	                oResult.put("responseCode", "RESULT_OK");
-	                if (Consts.DEBUG) {
-	                    Log.i(TAG, "purchase was successfully sent to server");
-	                }
-	                logProductActivity(request.mProductId, "sending purchase request");
-	            } else if (responseCode == ResponseCode.RESULT_USER_CANCELED) {
-	                oResult.put("responseCode", "RESULT_USER_CANCELED");
-	                if (Consts.DEBUG) {
-	                    Log.i(TAG, "user canceled purchase");
-	                }
-	                logProductActivity(request.mProductId, "dismissed purchase dialog");
-	            } else {
-	                oResult.put("responseCode", "RESULT_FAILED");
-	                if (Consts.DEBUG) {
-	                    Log.i(TAG, "purchase failed");
-	                }
-	                logProductActivity(request.mProductId, "request purchase returned " + responseCode);
-	            }
-	            // TODO: Send back the vent to javascript
-	            oResult.put("productId", request.mProductId);
-	            if (_pluginReference != null) {
-	                PluginResult result = new PluginResult(PluginResult.Status.OK, oResult.toString());
-	                result.setKeepCallback(true);
-	                _pluginReference.success(result, _pluginReference.getCallbackId());    	
-	            }
-        	} catch (Exception e) {
-				// TODO: handle exception
-			}
+
+                if (Consts.DEBUG) {
+                    Log.d(TAG, request.mProductId + ": " + responseCode);
+                }
+                if (responseCode == ResponseCode.RESULT_OK) {
+                    oResult.put("responseCode", "RESULT_OK");
+                    if (Consts.DEBUG) {
+                        Log.i(TAG, "purchase was successfully sent to server");
+                    }
+                    logProductActivity(request.mProductId, "sending purchase request");
+                } else if (responseCode == ResponseCode.RESULT_USER_CANCELED) {
+                    oResult.put("responseCode", "RESULT_USER_CANCELED");
+                    if (Consts.DEBUG) {
+                        Log.i(TAG, "user canceled purchase");
+                    }
+                    logProductActivity(request.mProductId, "dismissed purchase dialog");
+                } else {
+                    oResult.put("responseCode", "RESULT_FAILED");
+                    if (Consts.DEBUG) {
+                        Log.i(TAG, "purchase failed");
+                    }
+                    logProductActivity(request.mProductId, "request purchase returned " + responseCode);
+                }
+                // TODO: Send back the vent to javascript
+                oResult.put("productId", request.mProductId);
+                if (_pluginReference != null) {
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, oResult.toString());
+                    result.setKeepCallback(true);
+                    _pluginReference.success(result, _pluginReference.getCallbackId());
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
         }
 
         @Override
         public void onRestoreTransactionsResponse(RestoreTransactions request,
                 ResponseCode responseCode) {
-        	//fireJavaScriptEvent("onRestoreTransactionsResponse", "");
-        	
+            //fireJavaScriptEvent("onRestoreTransactionsResponse", "");
+
             if (responseCode == ResponseCode.RESULT_OK) {
                 if (Consts.DEBUG) {
                     Log.d(TAG, "completed RestoreTransactions request");
@@ -211,14 +211,14 @@ public class CallbackBillingActivity extends DroidGap {
     private String mItemName;
     private String mSku;
     //private CatalogAdapter mCatalogAdapter;
-	// End of Variable for Billing
-    
-	/** Called when the activity is first created. */
+    // End of Variable for Billing
+
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         eInstance = this;
-        
+
         mHandler = new Handler();
         mCallbackPurchaseObserver = new CallbackPurchaseObserver(mHandler);
         mBillingService = new BillingService();
@@ -232,10 +232,10 @@ public class CallbackBillingActivity extends DroidGap {
         if (!mBillingService.checkBillingSupported()) {
             showDialog(DIALOG_CANNOT_CONNECT_ID);
         }
-        
+
         super.loadUrl("file:///android_asset/www/index.html");
     }
-    
+
     /**
      * Called when this activity becomes visible.
      */
@@ -261,8 +261,8 @@ public class CallbackBillingActivity extends DroidGap {
         mPurchaseDatabase.close();
         mBillingService.unbind();
     }
-    
-    
+
+
 //    @Override
 //    protected Dialog onCreateDialog(int id) {
 //        switch (id) {
@@ -381,7 +381,7 @@ public class CallbackBillingActivity extends DroidGap {
      * set of owned items.
      */
     private void initializeOwnedItems() {
-    	Log.d(TAG, "INITIALIZE OWNED ITEMS");
+        Log.d(TAG, "INITIALIZE OWNED ITEMS");
         new Thread(new Runnable() {
             public void run() {
                 doInitializeOwnedItems();
@@ -397,7 +397,7 @@ public class CallbackBillingActivity extends DroidGap {
     private void doInitializeOwnedItems() {
         Cursor cursor = mPurchaseDatabase.queryAllPurchasedItems();
         if (cursor == null || cursor.getCount() == 0) {
-        	Log.d(TAG, "NO OWNED Product found");
+            Log.d(TAG, "NO OWNED Product found");
             return;
         }
 
@@ -426,77 +426,77 @@ public class CallbackBillingActivity extends DroidGap {
     }
 
     public void test() {
-    	fireJavaScriptEvent("test", "");
+        fireJavaScriptEvent("test", "");
     }
 
     public void startRequestingPurchase(String productId, CallbackBillingPlugin plugin) {
-    	_pluginReference = plugin;
-    	
-    	mSku = productId;
-	    if (!mBillingService.requestPurchase(mSku, mPayloadContents)) {
-	    	showDialog(DIALOG_BILLING_NOT_SUPPORTED_ID);
-	    }
+        _pluginReference = plugin;
+
+        mSku = productId;
+        if (!mBillingService.requestPurchase(mSku, mPayloadContents)) {
+            showDialog(DIALOG_BILLING_NOT_SUPPORTED_ID);
+        }
     }
-    
+
     public void startRestoringDatabase() {
-    	Log.d(TAG, "================Start restoring database===============");
-    	restoreDatabase();
+        Log.d(TAG, "================Start restoring database===============");
+        restoreDatabase();
     }
-    
+
     public JSONArray getPurchasedItems() {
-    	Log.d(TAG, "getPurchasedItems");
-    	if (mOwnedItemsCursor.requery() == false) {
-    		Log.d(TAG, "Failed to requery");
-    		return null;
-    	}
-    	if (mOwnedItemsCursor.moveToFirst() == false) {
-    		Log.d(TAG, "Failed to move to first");
-    		return null;
-    	}
+        Log.d(TAG, "getPurchasedItems");
+        if (mOwnedItemsCursor.requery() == false) {
+            Log.d(TAG, "Failed to requery");
+            return null;
+        }
+        if (mOwnedItemsCursor.moveToFirst() == false) {
+            Log.d(TAG, "Failed to move to first");
+            return null;
+        }
 
-    	Log.d(TAG, "getPurchasedItems count = " + Integer.toString(mOwnedItemsCursor.getCount()));
+        Log.d(TAG, "getPurchasedItems count = " + Integer.toString(mOwnedItemsCursor.getCount()));
 
-    	try {
-	    	JSONArray result = new JSONArray();
-	    	while (!mOwnedItemsCursor.isAfterLast()) {
-	    		JSONObject item = new JSONObject();
-	    		Log.d(TAG, "columnCount = " + Integer.toString(mOwnedItemsCursor.getColumnCount()));
-	    		for (int i = 0; i < mOwnedItemsCursor.getColumnCount(); i++) {
-	    			Log.d(TAG,"columnName = " + mOwnedItemsCursor.getColumnName(i));
-	        		if (mOwnedItemsCursor.getColumnName(i).equals(PurchaseDatabase.PURCHASED_PRODUCT_ID_COL)) {
-	            		item.put("productId", mOwnedItemsCursor.getString(i));
-	        		} else if (mOwnedItemsCursor.getColumnName(i).equals(PurchaseDatabase.PURCHASED_QUANTITY_COL)) {
-	        			item.put("quantity", mOwnedItemsCursor.getInt(i));
-	        		}
-	    		}
-	    		result.put(item);
-	    		mOwnedItemsCursor.moveToNext();
-	    	}
-	    	
-	    	return result;
-    	} catch (Exception e) {
-			// TODO: handle exception
-    		e.printStackTrace();
-    		return null;
-		}
+        try {
+            JSONArray result = new JSONArray();
+            while (!mOwnedItemsCursor.isAfterLast()) {
+                JSONObject item = new JSONObject();
+                Log.d(TAG, "columnCount = " + Integer.toString(mOwnedItemsCursor.getColumnCount()));
+                for (int i = 0; i < mOwnedItemsCursor.getColumnCount(); i++) {
+                    Log.d(TAG,"columnName = " + mOwnedItemsCursor.getColumnName(i));
+                    if (mOwnedItemsCursor.getColumnName(i).equals(PurchaseDatabase.PURCHASED_PRODUCT_ID_COL)) {
+                        item.put("productId", mOwnedItemsCursor.getString(i));
+                    } else if (mOwnedItemsCursor.getColumnName(i).equals(PurchaseDatabase.PURCHASED_QUANTITY_COL)) {
+                        item.put("quantity", mOwnedItemsCursor.getInt(i));
+                    }
+                }
+                result.put(item);
+                mOwnedItemsCursor.moveToNext();
+            }
+
+            return result;
+        } catch (Exception e) {
+            // TODO: handle exception
+            e.printStackTrace();
+            return null;
+        }
 /*        mOwnedItemsCursor = mPurchaseDatabase.queryAllPurchasedItems();
         startManagingCursor(mOwnedItemsCursor);
         String[] from = new String[] { PurchaseDatabase.PURCHASED_PRODUCT_ID_COL,
                 PurchaseDatabase.PURCHASED_QUANTITY_COL
         };
         if (mOwnedItemsCursor.getCount() > 0) {
-        	Log.d(TAG, "Found OWNED ITEMS");
-	        mOwnedItemsCursor.moveToFirst();
-	        while (!mOwnedItemsCursor.isLast()) {
-	        	String id = mOwnedItemsCursor.getString(0);
-	        	Log.d(TAG, "id = " + id);
-	        	mOwnedItemsCursor.moveToNext();
-	        }
+            Log.d(TAG, "Found OWNED ITEMS");
+            mOwnedItemsCursor.moveToFirst();
+            while (!mOwnedItemsCursor.isLast()) {
+                String id = mOwnedItemsCursor.getString(0);
+                Log.d(TAG, "id = " + id);
+                mOwnedItemsCursor.moveToNext();
+            }
         } else {
-        	Log.d(TAG, "[getPurchasedItems] NO OWN ITEMS FOUND");
+            Log.d(TAG, "[getPurchasedItems] NO OWN ITEMS FOUND");
         }*/
     }
-    
+
     /**
      * Called when a button is pressed.
      */
@@ -612,22 +612,22 @@ public class CallbackBillingActivity extends DroidGap {
 //            return view;
 //        }
 //    }
- 
+
     /**
      * Create an Event and dispatch it.
      * On Javascript side, there should be a listener, which is
      * listening for this event. Otherwise, the event will get lost
      */
-	private void fireJavaScriptEvent(String event, String JSONstring) {
-		Log.d(TAG, "[[[[[[[[["+ event +"]]]]]]]]]");
-		/*this.loadUrl("javascript:" +
-				"(function() {" +
-				"var e = document.createEvent('Events');" +
-				"e.initEvent('" + event + "');" +
-				"e.result = '"+ JSONstring + "';" +
-				"document.dispatchEvent(e);" +
-			"})();");*/
-		//this.loadUrl("javascript:(function() { "+event+"('"+ JSONstring.toString() +"');})()");
-		//this.loadUrl("javascript:"+event+"("+ JSONstring.toString() +")");
-	}    
+    private void fireJavaScriptEvent(String event, String JSONstring) {
+        Log.d(TAG, "[[[[[[[[["+ event +"]]]]]]]]]");
+        /*this.loadUrl("javascript:" +
+                "(function() {" +
+                "var e = document.createEvent('Events');" +
+                "e.initEvent('" + event + "');" +
+                "e.result = '"+ JSONstring + "';" +
+                "document.dispatchEvent(e);" +
+            "})();");*/
+        //this.loadUrl("javascript:(function() { "+event+"('"+ JSONstring.toString() +"');})()");
+        //this.loadUrl("javascript:"+event+"("+ JSONstring.toString() +")");
+    }
 }
